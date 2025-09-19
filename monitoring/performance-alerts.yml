@@ -1,0 +1,624 @@
+# monitoring/performance-alerts.yml
+# ChitLaq M1 MVP - Performance Monitoring and Alerting Configuration
+# Senior Performance Engineer - 15+ years monitoring and alerting experience
+
+# ============================================================================
+# PERFORMANCE MONITORING AND ALERTING CONFIGURATION
+# ============================================================================
+# This file contains comprehensive performance monitoring and alerting
+# rules for the ChitLaq social media platform.
+#
+# Features:
+# - Performance threshold monitoring
+# - Resource utilization alerts
+# - Application performance indicators
+# - Database performance monitoring
+# - CDN and caching performance
+# - User experience metrics
+# ============================================================================
+
+# ============================================================================
+# 1. PERFORMANCE THRESHOLD ALERTS
+# ============================================================================
+
+# API Response Time Alerts
+- alert: HighAPIResponseTime
+  expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.15
+  for: 2m
+  labels:
+    severity: warning
+    service: api
+    component: performance
+  annotations:
+    summary: "High API response time detected"
+    description: "95th percentile API response time is {{ $value }}s, exceeding threshold of 0.15s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-api-response-time"
+
+- alert: CriticalAPIResponseTime
+  expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.3
+  for: 1m
+  labels:
+    severity: critical
+    service: api
+    component: performance
+  annotations:
+    summary: "Critical API response time detected"
+    description: "95th percentile API response time is {{ $value }}s, exceeding critical threshold of 0.3s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-api-response-time"
+
+# WebSocket Latency Alerts
+- alert: HighWebSocketLatency
+  expr: histogram_quantile(0.95, rate(websocket_message_duration_seconds_bucket[5m])) > 0.1
+  for: 2m
+  labels:
+    severity: warning
+    service: websocket
+    component: performance
+  annotations:
+    summary: "High WebSocket latency detected"
+    description: "95th percentile WebSocket latency is {{ $value }}s, exceeding threshold of 0.1s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-websocket-latency"
+
+- alert: CriticalWebSocketLatency
+  expr: histogram_quantile(0.95, rate(websocket_message_duration_seconds_bucket[5m])) > 0.2
+  for: 1m
+  labels:
+    severity: critical
+    service: websocket
+    component: performance
+  annotations:
+    summary: "Critical WebSocket latency detected"
+    description: "95th percentile WebSocket latency is {{ $value }}s, exceeding critical threshold of 0.2s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-websocket-latency"
+
+# Database Query Performance Alerts
+- alert: SlowDatabaseQueries
+  expr: histogram_quantile(0.95, rate(postgresql_query_duration_seconds_bucket[5m])) > 0.05
+  for: 2m
+  labels:
+    severity: warning
+    service: database
+    component: performance
+  annotations:
+    summary: "Slow database queries detected"
+    description: "95th percentile database query time is {{ $value }}s, exceeding threshold of 0.05s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/slow-database-queries"
+
+- alert: CriticalDatabaseQueries
+  expr: histogram_quantile(0.95, rate(postgresql_query_duration_seconds_bucket[5m])) > 0.1
+  for: 1m
+  labels:
+    severity: critical
+    service: database
+    component: performance
+  annotations:
+    summary: "Critical database query performance"
+    description: "95th percentile database query time is {{ $value }}s, exceeding critical threshold of 0.1s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-database-queries"
+
+# ============================================================================
+# 2. RESOURCE UTILIZATION ALERTS
+# ============================================================================
+
+# CPU Utilization Alerts
+- alert: HighCPUUsage
+  expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+  for: 5m
+  labels:
+    severity: warning
+    service: system
+    component: cpu
+  annotations:
+    summary: "High CPU usage detected"
+    description: "CPU usage is {{ $value }}% on instance {{ $labels.instance }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-cpu-usage"
+
+- alert: CriticalCPUUsage
+  expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+  for: 2m
+  labels:
+    severity: critical
+    service: system
+    component: cpu
+  annotations:
+    summary: "Critical CPU usage detected"
+    description: "CPU usage is {{ $value }}% on instance {{ $labels.instance }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-cpu-usage"
+
+# Memory Utilization Alerts
+- alert: HighMemoryUsage
+  expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+  for: 5m
+  labels:
+    severity: warning
+    service: system
+    component: memory
+  annotations:
+    summary: "High memory usage detected"
+    description: "Memory usage is {{ $value }}% on instance {{ $labels.instance }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-memory-usage"
+
+- alert: CriticalMemoryUsage
+  expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+  for: 2m
+  labels:
+    severity: critical
+    service: system
+    component: memory
+  annotations:
+    summary: "Critical memory usage detected"
+    description: "Memory usage is {{ $value }}% on instance {{ $labels.instance }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-memory-usage"
+
+# Disk Usage Alerts
+- alert: HighDiskUsage
+  expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 85
+  for: 5m
+  labels:
+    severity: warning
+    service: system
+    component: disk
+  annotations:
+    summary: "High disk usage detected"
+    description: "Disk usage is {{ $value }}% on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-disk-usage"
+
+- alert: CriticalDiskUsage
+  expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 95
+  for: 2m
+  labels:
+    severity: critical
+    service: system
+    component: disk
+  annotations:
+    summary: "Critical disk usage detected"
+    description: "Disk usage is {{ $value }}% on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-disk-usage"
+
+# ============================================================================
+# 3. APPLICATION PERFORMANCE INDICATORS
+# ============================================================================
+
+# Error Rate Alerts
+- alert: HighErrorRate
+  expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+  for: 3m
+  labels:
+    severity: warning
+    service: api
+    component: errors
+  annotations:
+    summary: "High error rate detected"
+    description: "Error rate is {{ $value }}% for service {{ $labels.service }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-error-rate"
+
+- alert: CriticalErrorRate
+  expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 10
+  for: 1m
+  labels:
+    severity: critical
+    service: api
+    component: errors
+  annotations:
+    summary: "Critical error rate detected"
+    description: "Error rate is {{ $value }}% for service {{ $labels.service }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-error-rate"
+
+# Request Rate Alerts
+- alert: HighRequestRate
+  expr: rate(http_requests_total[5m]) > 1000
+  for: 5m
+  labels:
+    severity: warning
+    service: api
+    component: throughput
+  annotations:
+    summary: "High request rate detected"
+    description: "Request rate is {{ $value }} requests/second for service {{ $labels.service }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-request-rate"
+
+- alert: CriticalRequestRate
+  expr: rate(http_requests_total[5m]) > 2000
+  for: 2m
+  labels:
+    severity: critical
+    service: api
+    component: throughput
+  annotations:
+    summary: "Critical request rate detected"
+    description: "Request rate is {{ $value }} requests/second for service {{ $labels.service }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-request-rate"
+
+# ============================================================================
+# 4. DATABASE PERFORMANCE MONITORING
+# ============================================================================
+
+# Database Connection Pool Alerts
+- alert: HighDatabaseConnections
+  expr: postgresql_connections_active / postgresql_connections_max * 100 > 80
+  for: 5m
+  labels:
+    severity: warning
+    service: database
+    component: connections
+  annotations:
+    summary: "High database connection usage"
+    description: "Database connection usage is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-database-connections"
+
+- alert: CriticalDatabaseConnections
+  expr: postgresql_connections_active / postgresql_connections_max * 100 > 95
+  for: 2m
+  labels:
+    severity: critical
+    service: database
+    component: connections
+  annotations:
+    summary: "Critical database connection usage"
+    description: "Database connection usage is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-database-connections"
+
+# Database Lock Alerts
+- alert: DatabaseLocks
+  expr: postgresql_locks_count > 10
+  for: 2m
+  labels:
+    severity: warning
+    service: database
+    component: locks
+  annotations:
+    summary: "Database locks detected"
+    description: "{{ $value }} database locks detected"
+    runbook_url: "https://docs.chitlaq.com/runbooks/database-locks"
+
+# Database Cache Hit Ratio Alerts
+- alert: LowDatabaseCacheHitRatio
+  expr: postgresql_cache_hit_ratio * 100 < 90
+  for: 5m
+  labels:
+    severity: warning
+    service: database
+    component: cache
+  annotations:
+    summary: "Low database cache hit ratio"
+    description: "Database cache hit ratio is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-database-cache-hit-ratio"
+
+# ============================================================================
+# 5. CACHING PERFORMANCE MONITORING
+# ============================================================================
+
+# Redis Performance Alerts
+- alert: HighRedisMemoryUsage
+  expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 85
+  for: 5m
+  labels:
+    severity: warning
+    service: redis
+    component: memory
+  annotations:
+    summary: "High Redis memory usage"
+    description: "Redis memory usage is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-redis-memory-usage"
+
+- alert: CriticalRedisMemoryUsage
+  expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 95
+  for: 2m
+  labels:
+    severity: critical
+    service: redis
+    component: memory
+  annotations:
+    summary: "Critical Redis memory usage"
+    description: "Redis memory usage is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-redis-memory-usage"
+
+# Redis Hit Ratio Alerts
+- alert: LowRedisHitRatio
+  expr: redis_keyspace_hits / (redis_keyspace_hits + redis_keyspace_misses) * 100 < 80
+  for: 5m
+  labels:
+    severity: warning
+    service: redis
+    component: performance
+  annotations:
+    summary: "Low Redis hit ratio"
+    description: "Redis hit ratio is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-redis-hit-ratio"
+
+# ============================================================================
+# 6. CDN AND CONTENT DELIVERY PERFORMANCE
+# ============================================================================
+
+# CDN Performance Alerts
+- alert: HighCDNResponseTime
+  expr: histogram_quantile(0.95, rate(cdn_response_time_seconds_bucket[5m])) > 0.5
+  for: 5m
+  labels:
+    severity: warning
+    service: cdn
+    component: performance
+  annotations:
+    summary: "High CDN response time"
+    description: "95th percentile CDN response time is {{ $value }}s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-cdn-response-time"
+
+- alert: LowCDNCacheHitRatio
+  expr: cdn_cache_hits / (cdn_cache_hits + cdn_cache_misses) * 100 < 85
+  for: 10m
+  labels:
+    severity: warning
+    service: cdn
+    component: cache
+  annotations:
+    summary: "Low CDN cache hit ratio"
+    description: "CDN cache hit ratio is {{ $value }}%"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-cdn-cache-hit-ratio"
+
+# ============================================================================
+# 7. USER EXPERIENCE METRICS
+# ============================================================================
+
+# Page Load Time Alerts
+- alert: HighPageLoadTime
+  expr: histogram_quantile(0.95, rate(page_load_time_seconds_bucket[5m])) > 2
+  for: 5m
+  labels:
+    severity: warning
+    service: frontend
+    component: performance
+  annotations:
+    summary: "High page load time"
+    description: "95th percentile page load time is {{ $value }}s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-page-load-time"
+
+- alert: CriticalPageLoadTime
+  expr: histogram_quantile(0.95, rate(page_load_time_seconds_bucket[5m])) > 5
+  for: 2m
+  labels:
+    severity: critical
+    service: frontend
+    component: performance
+  annotations:
+    summary: "Critical page load time"
+    description: "95th percentile page load time is {{ $value }}s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-page-load-time"
+
+# User Session Duration Alerts
+- alert: LowUserSessionDuration
+  expr: avg(user_session_duration_seconds) < 60
+  for: 10m
+  labels:
+    severity: warning
+    service: analytics
+    component: engagement
+  annotations:
+    summary: "Low user session duration"
+    description: "Average user session duration is {{ $value }}s"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-user-session-duration"
+
+# ============================================================================
+# 8. THROUGHPUT AND CAPACITY ALERTS
+# ============================================================================
+
+# Message Throughput Alerts
+- alert: HighMessageThroughput
+  expr: rate(messages_processed_total[5m]) > 1000
+  for: 5m
+  labels:
+    severity: warning
+    service: messaging
+    component: throughput
+  annotations:
+    summary: "High message throughput"
+    description: "Message throughput is {{ $value }} messages/second"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-message-throughput"
+
+- alert: CriticalMessageThroughput
+  expr: rate(messages_processed_total[5m]) > 2000
+  for: 2m
+  labels:
+    severity: critical
+    service: messaging
+    component: throughput
+  annotations:
+    summary: "Critical message throughput"
+    description: "Message throughput is {{ $value }} messages/second"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-message-throughput"
+
+# Concurrent User Alerts
+- alert: HighConcurrentUsers
+  expr: concurrent_users_active > 800
+  for: 5m
+  labels:
+    severity: warning
+    service: system
+    component: capacity
+  annotations:
+    summary: "High concurrent user count"
+    description: "{{ $value }} concurrent users active"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-concurrent-users"
+
+- alert: CriticalConcurrentUsers
+  expr: concurrent_users_active > 1000
+  for: 2m
+  labels:
+    severity: critical
+    service: system
+    component: capacity
+  annotations:
+    summary: "Critical concurrent user count"
+    description: "{{ $value }} concurrent users active"
+    runbook_url: "https://docs.chitlaq.com/runbooks/critical-concurrent-users"
+
+# ============================================================================
+# 9. AVAILABILITY AND UPTIME ALERTS
+# ============================================================================
+
+# Service Availability Alerts
+- alert: ServiceDown
+  expr: up == 0
+  for: 1m
+  labels:
+    severity: critical
+    service: "{{ $labels.job }}"
+    component: availability
+  annotations:
+    summary: "Service is down"
+    description: "Service {{ $labels.job }} is down on instance {{ $labels.instance }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/service-down"
+
+# Health Check Failures
+- alert: HealthCheckFailure
+  expr: health_check_status != 1
+  for: 2m
+  labels:
+    severity: warning
+    service: "{{ $labels.service }}"
+    component: health
+  annotations:
+    summary: "Health check failure"
+    description: "Health check failed for service {{ $labels.service }}"
+    runbook_url: "https://docs.chitlaq.com/runbooks/health-check-failure"
+
+# ============================================================================
+# 10. SECURITY AND PERFORMANCE ALERTS
+# ============================================================================
+
+# Rate Limiting Alerts
+- alert: HighRateLimitHits
+  expr: rate(rate_limit_hits_total[5m]) > 100
+  for: 5m
+  labels:
+    severity: warning
+    service: api
+    component: security
+  annotations:
+    summary: "High rate limit hits"
+    description: "Rate limit hits: {{ $value }} per second"
+    runbook_url: "https://docs.chitlaq.com/runbooks/high-rate-limit-hits"
+
+# DDoS Protection Alerts
+- alert: PotentialDDoSAttack
+  expr: rate(http_requests_total[1m]) > 5000
+  for: 1m
+  labels:
+    severity: critical
+    service: api
+    component: security
+  annotations:
+    summary: "Potential DDoS attack detected"
+    description: "Request rate: {{ $value }} per second"
+    runbook_url: "https://docs.chitlaq.com/runbooks/ddos-attack"
+
+# ============================================================================
+# 11. BUSINESS METRICS ALERTS
+# ============================================================================
+
+# User Registration Rate Alerts
+- alert: LowUserRegistrationRate
+  expr: rate(user_registrations_total[1h]) < 1
+  for: 30m
+  labels:
+    severity: warning
+    service: analytics
+    component: business
+  annotations:
+    summary: "Low user registration rate"
+    description: "User registration rate is {{ $value }} per hour"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-user-registration-rate"
+
+# Post Creation Rate Alerts
+- alert: LowPostCreationRate
+  expr: rate(posts_created_total[1h]) < 10
+  for: 30m
+  labels:
+    severity: warning
+    service: analytics
+    component: business
+  annotations:
+    summary: "Low post creation rate"
+    description: "Post creation rate is {{ $value }} per hour"
+    runbook_url: "https://docs.chitlaq.com/runbooks/low-post-creation-rate"
+
+# ============================================================================
+# 12. ALERT ROUTING AND NOTIFICATION CONFIGURATION
+# ============================================================================
+
+# Alert routing rules
+route:
+  group_by: ['alertname', 'service', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 5s
+      repeat_interval: 30m
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+    - match:
+        service: database
+      receiver: 'database-team'
+    - match:
+        service: api
+      receiver: 'api-team'
+    - match:
+        service: frontend
+      receiver: 'frontend-team'
+
+# Notification receivers
+receivers:
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://alertmanager:9093/api/v1/alerts'
+        send_resolved: true
+
+  - name: 'critical-alerts'
+    pagerduty_configs:
+      - routing_key: 'YOUR_PAGERDUTY_ROUTING_KEY'
+        description: 'Critical alert: {{ .GroupLabels.alertname }}'
+        details:
+          summary: '{{ .GroupLabels.alertname }}'
+          severity: '{{ .GroupLabels.severity }}'
+          service: '{{ .GroupLabels.service }}'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#critical-alerts'
+        title: 'Critical Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'warning-alerts'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts'
+        title: 'Warning: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'database-team'
+    email_configs:
+      - to: 'database-team@chitlaq.com'
+        subject: 'Database Alert: {{ .GroupLabels.alertname }}'
+        body: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'api-team'
+    email_configs:
+      - to: 'api-team@chitlaq.com'
+        subject: 'API Alert: {{ .GroupLabels.alertname }}'
+        body: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+  - name: 'frontend-team'
+    email_configs:
+      - to: 'frontend-team@chitlaq.com'
+        subject: 'Frontend Alert: {{ .GroupLabels.alertname }}'
+        body: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+# ============================================================================
+# END OF PERFORMANCE ALERTS CONFIGURATION
+# ============================================================================
