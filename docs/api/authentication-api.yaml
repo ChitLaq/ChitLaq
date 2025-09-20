@@ -1,0 +1,933 @@
+openapi: 3.0.3
+info:
+  title: ChitLaq Authentication API
+  description: |
+    Comprehensive authentication API for ChitLaq social media platform.
+    Provides secure university email-based authentication with advanced security features.
+  version: 1.0.0
+  contact:
+    name: ChitLaq API Support
+    email: api-support@chitlaq.com
+    url: https://chitlaq.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.chitlaq.com/v1
+    description: Production server
+  - url: https://staging-api.chitlaq.com/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: |
+        Register a new user with university email validation.
+        Requires valid university email domain and approved prefix.
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              valid_registration:
+                summary: Valid university student registration
+                value:
+                  email: "student@university.edu"
+                  password: "SecurePassword123!"
+                  confirmPassword: "SecurePassword123!"
+                  firstName: "John"
+                  lastName: "Doe"
+                  universityId: "1"
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+              examples:
+                success:
+                  summary: Successful registration
+                  value:
+                    success: true
+                    data:
+                      userId: "user_123456789"
+                      email: "student@university.edu"
+                      firstName: "John"
+                      lastName: "Doe"
+                      universityId: "1"
+                      isEmailVerified: false
+                      createdAt: "2023-12-01T10:00:00Z"
+                    message: "User registered successfully. Please verify your email."
+        '400':
+          description: Bad request - validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_email:
+                  summary: Invalid university email
+                  value:
+                    success: false
+                    error: "Invalid university email domain"
+                    code: "INVALID_EMAIL_DOMAIN"
+                weak_password:
+                  summary: Weak password
+                  value:
+                    success: false
+                    error: "Password does not meet security requirements"
+                    code: "WEAK_PASSWORD"
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: |
+        Authenticate user with email and password.
+        Returns access token and refresh token for session management.
+      operationId: loginUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              valid_login:
+                summary: Valid user login
+                value:
+                  email: "student@university.edu"
+                  password: "SecurePassword123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                success:
+                  summary: Successful login
+                  value:
+                    success: true
+                    data:
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      expiresIn: 3600
+                      user:
+                        id: "user_123456789"
+                        email: "student@university.edu"
+                        firstName: "John"
+                        lastName: "Doe"
+                        universityId: "1"
+                        isEmailVerified: true
+                    message: "Login successful"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '423':
+          description: Account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: |
+        Refresh expired access token using refresh token.
+        Returns new access token and refresh token.
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: |
+        Logout user and invalidate tokens.
+        Requires valid access token.
+      operationId: logoutUser
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/forgot-password:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: |
+        Send password reset email to user.
+        Requires valid university email.
+      operationId: forgotPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: Reset email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPasswordResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password
+      description: |
+        Reset user password using reset token.
+        Requires valid reset token from email.
+      operationId: resetPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordResponse'
+        '400':
+          description: Invalid token or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email address
+      description: |
+        Verify user email address using verification token.
+        Required for account activation.
+      operationId: verifyEmail
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+        '400':
+          description: Invalid verification token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/resend-verification:
+    post:
+      tags:
+        - Authentication
+      summary: Resend verification email
+      description: |
+        Resend email verification link to user.
+        Rate limited to prevent abuse.
+      operationId: resendVerification
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendVerificationResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/profile:
+    get:
+      tags:
+        - User Profile
+      summary: Get user profile
+      description: |
+        Retrieve authenticated user's profile information.
+        Requires valid access token.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - User Profile
+      summary: Update user profile
+      description: |
+        Update authenticated user's profile information.
+        Requires valid access token.
+      operationId: updateUserProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/validate-email:
+    post:
+      tags:
+        - Validation
+      summary: Validate university email
+      description: |
+        Validate if email belongs to approved university domain.
+        Used for registration validation.
+      operationId: validateEmail
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateEmailRequest'
+      responses:
+        '200':
+          description: Email validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateEmailResponse'
+        '400':
+          description: Invalid email format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/security/incidents:
+    get:
+      tags:
+        - Security
+      summary: Get security incidents
+      description: |
+        Retrieve security incidents for authenticated user.
+        Requires admin privileges.
+      operationId: getSecurityIncidents
+      parameters:
+        - name: limit
+          in: query
+          description: Number of incidents to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Number of incidents to skip
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Security incidents retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityIncidentsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from login endpoint.
+        Include in Authorization header as "Bearer {token}".
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        API key for service-to-service authentication.
+        Contact support to obtain API key.
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - confirmPassword
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          description: University email address
+          example: "student@university.edu"
+        password:
+          type: string
+          minLength: 8
+          description: User password (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
+          example: "SecurePassword123!"
+        confirmPassword:
+          type: string
+          description: Password confirmation
+          example: "SecurePassword123!"
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User's first name
+          example: "John"
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User's last name
+          example: "Doe"
+        universityId:
+          type: string
+          description: University ID (optional, auto-detected from email)
+          example: "1"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: University email address
+          example: "student@university.edu"
+        password:
+          type: string
+          description: User password
+          example: "SecurePassword123!"
+
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh token from login response
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ForgotPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: University email address
+          example: "student@university.edu"
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - token
+        - newPassword
+        - confirmPassword
+      properties:
+        token:
+          type: string
+          description: Reset token from email
+          example: "reset_token_123456"
+        newPassword:
+          type: string
+          minLength: 8
+          description: New password
+          example: "NewSecurePassword123!"
+        confirmPassword:
+          type: string
+          description: New password confirmation
+          example: "NewSecurePassword123!"
+
+    VerifyEmailRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Verification token from email
+          example: "verify_token_123456"
+
+    ResendVerificationRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: University email address
+          example: "student@university.edu"
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User's first name
+          example: "Jane"
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: User's last name
+          example: "Smith"
+        bio:
+          type: string
+          maxLength: 500
+          description: User biography
+          example: "Computer Science student at University"
+
+    ValidateEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to validate
+          example: "student@university.edu"
+
+    RegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+              example: "user_123456789"
+            email:
+              type: string
+              example: "student@university.edu"
+            firstName:
+              type: string
+              example: "John"
+            lastName:
+              type: string
+              example: "Doe"
+            universityId:
+              type: string
+              example: "1"
+            isEmailVerified:
+              type: boolean
+              example: false
+            createdAt:
+              type: string
+              format: date-time
+              example: "2023-12-01T10:00:00Z"
+        message:
+          type: string
+          example: "User registered successfully. Please verify your email."
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            refreshToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            expiresIn:
+              type: integer
+              example: 3600
+            user:
+              $ref: '#/components/schemas/User'
+        message:
+          type: string
+          example: "Login successful"
+
+    RefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            refreshToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            expiresIn:
+              type: integer
+              example: 3600
+
+    LogoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Logout successful"
+
+    ForgotPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Password reset link sent to your email"
+
+    ResetPasswordResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Password reset successful"
+
+    VerifyEmailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Email verified successfully"
+
+    ResendVerificationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Verification email sent"
+
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/User'
+
+    ValidateEmailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            isValid:
+              type: boolean
+              example: true
+            university:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "1"
+                name:
+                  type: string
+                  example: "University of Technology"
+                domain:
+                  type: string
+                  example: "university.edu"
+                country:
+                  type: string
+                  example: "US"
+
+    SecurityIncidentsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            incidents:
+              type: array
+              items:
+                $ref: '#/components/schemas/SecurityIncident'
+            total:
+              type: integer
+              example: 25
+            limit:
+              type: integer
+              example: 20
+            offset:
+              type: integer
+              example: 0
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "user_123456789"
+        email:
+          type: string
+          example: "student@university.edu"
+        firstName:
+          type: string
+          example: "John"
+        lastName:
+          type: string
+          example: "Doe"
+        universityId:
+          type: string
+          example: "1"
+        isEmailVerified:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00Z"
+
+    SecurityIncident:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "incident_123456"
+        type:
+          type: string
+          enum: [BRUTE_FORCE, SQL_INJECTION, XSS, CSRF, DDOS]
+          example: "BRUTE_FORCE"
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+          example: "HIGH"
+        description:
+          type: string
+          example: "Multiple failed login attempts detected"
+        ipAddress:
+          type: string
+          example: "192.168.1.100"
+        userAgent:
+          type: string
+          example: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00Z"
+        status:
+          type: string
+          enum: [OPEN, INVESTIGATING, RESOLVED, CLOSED]
+          example: "OPEN"
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Invalid email format"
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "INVALID_EMAIL_FORMAT"
+        details:
+          type: object
+          description: Additional error details
+          example:
+            field: "email"
+            value: "invalid-email"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:00:00Z"
+        requestId:
+          type: string
+          description: Unique request identifier for debugging
+          example: "req_123456789"
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: User Profile
+    description: User profile management
+  - name: Validation
+    description: Email and data validation
+  - name: Security
+    description: Security monitoring and incident management
