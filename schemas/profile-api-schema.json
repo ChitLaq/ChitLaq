@@ -1,0 +1,1635 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Profile Management API Schema",
+  "description": "Comprehensive JSON schema for the Profile Management API endpoints",
+  "definitions": {
+    "UserProfile": {
+      "type": "object",
+      "required": ["userId", "firstName", "lastName", "username", "universityEmail", "privacySettings", "profileCompletionScore", "isUniversityVerified", "createdAt", "updatedAt"],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for the user",
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User's last name",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "username": {
+          "type": "string",
+          "description": "Unique username for the user",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "minLength": 3,
+          "maxLength": 30
+        },
+        "universityEmail": {
+          "type": "string",
+          "description": "User's university email address",
+          "format": "email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.edu$"
+        },
+        "major": {
+          "type": "string",
+          "description": "User's academic major",
+          "maxLength": 100
+        },
+        "academicYear": {
+          "type": "integer",
+          "description": "User's academic year",
+          "minimum": 2020,
+          "maximum": 2030
+        },
+        "department": {
+          "type": "string",
+          "description": "User's academic department",
+          "maxLength": 100
+        },
+        "faculty": {
+          "type": "string",
+          "description": "User's academic faculty",
+          "maxLength": 100
+        },
+        "bio": {
+          "type": "string",
+          "description": "User's biography",
+          "maxLength": 500
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL to user's profile picture",
+          "format": "uri",
+          "maxLength": 500
+        },
+        "socialLinks": {
+          "type": "object",
+          "description": "User's social media links",
+          "properties": {
+            "linkedin": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "github": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "twitter": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "website": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "privacySettings": {
+          "$ref": "#/definitions/PrivacySettings"
+        },
+        "profileCompletionScore": {
+          "type": "integer",
+          "description": "Profile completion score (0-100)",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "isUniversityVerified": {
+          "type": "boolean",
+          "description": "Whether the user's university email is verified"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile last update timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PrivacySettings": {
+      "type": "object",
+      "required": ["profileVisibility", "showEmail", "showPhone", "showAcademicInfo", "showSocialLinks"],
+      "properties": {
+        "profileVisibility": {
+          "type": "string",
+          "description": "Profile visibility level",
+          "enum": ["public", "university", "private"]
+        },
+        "showEmail": {
+          "type": "boolean",
+          "description": "Whether to show email address"
+        },
+        "showPhone": {
+          "type": "boolean",
+          "description": "Whether to show phone number"
+        },
+        "showAcademicInfo": {
+          "type": "boolean",
+          "description": "Whether to show academic information"
+        },
+        "showSocialLinks": {
+          "type": "boolean",
+          "description": "Whether to show social media links"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UniversityProfile": {
+      "type": "object",
+      "required": ["id", "name", "domain", "country", "status", "approved", "allowStudentNetworking", "createdAt", "updatedAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the university",
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "University name",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "domain": {
+          "type": "string",
+          "description": "University email domain",
+          "pattern": "^[a-zA-Z0-9.-]+\\.edu$"
+        },
+        "country": {
+          "type": "string",
+          "description": "University country",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "description": "University status",
+          "enum": ["active", "inactive", "suspended"]
+        },
+        "approved": {
+          "type": "boolean",
+          "description": "Whether the university is approved"
+        },
+        "allowStudentNetworking": {
+          "type": "boolean",
+          "description": "Whether the university allows student networking"
+        },
+        "programs": {
+          "type": "array",
+          "description": "Available academic programs",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "departments": {
+          "type": "array",
+          "description": "Available departments",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "faculties": {
+          "type": "array",
+          "description": "Available faculties",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "academicCalendar": {
+          "type": "object",
+          "description": "Academic calendar information",
+          "properties": {
+            "startMonth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "endMonth": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            }
+          },
+          "required": ["startMonth", "endMonth"],
+          "additionalProperties": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "University profile creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "University profile last update timestamp"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CreateProfileRequest": {
+      "type": "object",
+      "required": ["firstName", "lastName", "username", "universityEmail"],
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "username": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "minLength": 3,
+          "maxLength": 30
+        },
+        "universityEmail": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.edu$"
+        },
+        "major": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "academicYear": {
+          "type": "integer",
+          "minimum": 2020,
+          "maximum": 2030
+        },
+        "department": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "faculty": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "profilePicture": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 500
+        },
+        "socialLinks": {
+          "type": "object",
+          "properties": {
+            "linkedin": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "github": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "twitter": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "website": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "privacySettings": {
+          "$ref": "#/definitions/PrivacySettings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "UpdateProfileRequest": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "major": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "academicYear": {
+          "type": "integer",
+          "minimum": 2020,
+          "maximum": 2030
+        },
+        "department": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "faculty": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "profilePicture": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 500
+        },
+        "socialLinks": {
+          "type": "object",
+          "properties": {
+            "linkedin": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "github": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "twitter": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            },
+            "website": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "SearchProfilesRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "university": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "major": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "academicYear": {
+          "type": "integer",
+          "minimum": 2020,
+          "maximum": 2030
+        },
+        "department": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "faculty": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 10
+        }
+      },
+      "additionalProperties": false
+    },
+    "SearchProfilesResponse": {
+      "type": "object",
+      "required": ["profiles", "total", "page", "limit", "totalPages"],
+      "properties": {
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "username": {
+                "type": "string"
+              },
+              "major": {
+                "type": "string"
+              },
+              "academicYear": {
+                "type": "integer"
+              },
+              "universityName": {
+                "type": "string"
+              },
+              "profilePicture": {
+                "type": "string"
+              },
+              "profileCompletionScore": {
+                "type": "integer"
+              },
+              "isUniversityVerified": {
+                "type": "boolean"
+              }
+            },
+            "required": ["userId", "firstName", "lastName", "username", "profileCompletionScore", "isUniversityVerified"],
+            "additionalProperties": false
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "totalPages": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProfileCompletionResponse": {
+      "type": "object",
+      "required": ["score", "missingFields", "suggestions"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "missingFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProfileStatisticsResponse": {
+      "type": "object",
+      "required": ["totalProfiles", "verifiedProfiles", "averageCompletionScore", "topMajors", "universityDistribution"],
+      "properties": {
+        "totalProfiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedProfiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "averageCompletionScore": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "topMajors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "major": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["major", "count"],
+            "additionalProperties": false
+          }
+        },
+        "universityDistribution": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "university": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["university", "count"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "UniversitySyncResult": {
+      "type": "object",
+      "required": ["success", "changes", "errors"],
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "universityId": {
+          "type": "string"
+        },
+        "universityName": {
+          "type": "string"
+        },
+        "universityDomain": {
+          "type": "string"
+        },
+        "universityPrefix": {
+          "type": "string"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "UniversityValidationResult": {
+      "type": "object",
+      "required": ["isValid", "errors", "warnings"],
+      "properties": {
+        "isValid": {
+          "type": "boolean"
+        },
+        "universityId": {
+          "type": "string"
+        },
+        "universityName": {
+          "type": "string"
+        },
+        "universityDomain": {
+          "type": "string"
+        },
+        "universityPrefix": {
+          "type": "string"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "UniversityStatisticsResponse": {
+      "type": "object",
+      "required": ["totalStudents", "activeStudents", "verifiedStudents", "averageCompletionScore", "topMajors", "academicYearDistribution"],
+      "properties": {
+        "totalStudents": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activeStudents": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedStudents": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "averageCompletionScore": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "topMajors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "major": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["major", "count"],
+            "additionalProperties": false
+          }
+        },
+        "academicYearDistribution": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "year": {
+                "type": "integer",
+                "minimum": 2020,
+                "maximum": 2030
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["year", "count"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ValidateEmailRequest": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.edu$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ApiResponse": {
+      "type": "object",
+      "required": ["success"],
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": ["success", "error"],
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "const": false
+        },
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "paths": {
+    "/profiles": {
+      "post": {
+        "summary": "Create a new user profile",
+        "description": "Creates a new user profile with university email validation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/CreateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Profile created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UserProfile"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{userId}": {
+      "get": {
+        "summary": "Get user profile by ID",
+        "description": "Retrieves a user profile by user ID",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UserProfile"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user profile",
+        "description": "Updates an existing user profile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UserProfile"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user profile",
+        "description": "Deletes a user profile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/username/{username}": {
+      "get": {
+        "summary": "Get user profile by username",
+        "description": "Retrieves a user profile by username",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UserProfile"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Username not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/search": {
+      "get": {
+        "summary": "Search user profiles",
+        "description": "Searches for user profiles based on various criteria",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "university",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "major",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYear",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "faculty",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/SearchProfilesResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{userId}/completion": {
+      "get": {
+        "summary": "Get profile completion score",
+        "description": "Retrieves the profile completion score and suggestions",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completion score retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/ProfileCompletionResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{userId}/privacy": {
+      "get": {
+        "summary": "Get privacy settings",
+        "description": "Retrieves the privacy settings for a user profile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Privacy settings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/PrivacySettings"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update privacy settings",
+        "description": "Updates the privacy settings for a user profile",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/PrivacySettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Privacy settings updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/PrivacySettings"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/public": {
+      "get": {
+        "summary": "Get public profiles",
+        "description": "Retrieves public profiles based on various criteria",
+        "parameters": [
+          {
+            "name": "university",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "major",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYear",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "faculty",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public profiles retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/SearchProfilesResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{userId}/statistics": {
+      "get": {
+        "summary": "Get profile statistics",
+        "description": "Retrieves profile statistics for a user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/ProfileStatisticsResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/{userId}/sync-university": {
+      "post": {
+        "summary": "Sync profile with university",
+        "description": "Synchronizes a user profile with university data",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile synchronized successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UniversitySyncResult"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Sync failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/validate-email": {
+      "post": {
+        "summary": "Validate university email",
+        "description": "Validates a university email address",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/definitions/ValidateEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email validation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UniversityValidationResult"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/universities": {
+      "get": {
+        "summary": "Get universities",
+        "description": "Retrieves a list of universities",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Universities retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/UniversityProfile"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/profiles/universities/{universityId}/statistics": {
+      "get": {
+        "summary": "Get university statistics",
+        "description": "Retrieves statistics for a specific university",
+        "parameters": [
+          {
+            "name": "universityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/ApiResponse"
+                    },
+                    {
+                      "properties": {
+                        "success": {
+                          "const": true
+                        },
+                        "data": {
+                          "$ref": "#/definitions/UniversityStatisticsResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "University not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Profiles",
+      "description": "User profile management operations"
+    },
+    {
+      "name": "Universities",
+      "description": "University-related operations"
+    },
+    {
+      "name": "Privacy",
+      "description": "Privacy settings management"
+    },
+    {
+      "name": "Search",
+      "description": "Profile search and discovery"
+    }
+  ]
+}

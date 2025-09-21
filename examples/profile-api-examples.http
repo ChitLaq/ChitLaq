@@ -1,0 +1,616 @@
+# Profile Management API Examples
+
+## Base Configuration
+@baseUrl = https://api.chitlaq.com/v1/profiles
+@token = your_jwt_token_here
+
+## 1. Create Profile
+
+### Create a new user profile
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "username": "johndoe",
+  "universityEmail": "john.doe@university.edu",
+  "major": "Computer Science",
+  "academicYear": 2024,
+  "department": "Computer Science Department",
+  "faculty": "Engineering",
+  "bio": "Passionate about technology and innovation. Currently studying Computer Science at University of Technology.",
+  "profilePicture": "https://example.com/profile.jpg",
+  "socialLinks": {
+    "linkedin": "https://linkedin.com/in/johndoe",
+    "github": "https://github.com/johndoe",
+    "twitter": "https://twitter.com/johndoe",
+    "website": "https://johndoe.dev"
+  },
+  "privacySettings": {
+    "profileVisibility": "university",
+    "showEmail": false,
+    "showPhone": false,
+    "showAcademicInfo": true,
+    "showSocialLinks": false
+  }
+}
+
+### Create profile with minimal data
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "username": "janesmith",
+  "universityEmail": "jane.smith@state.edu",
+  "major": "Data Science"
+}
+
+## 2. Get Profile
+
+### Get profile by user ID
+GET {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+
+### Get profile by username
+GET {{baseUrl}}/username/johndoe
+Authorization: Bearer {{token}}
+
+## 3. Update Profile
+
+### Update basic information
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "bio": "Updated bio content with more details about my interests and goals.",
+  "profilePicture": "https://example.com/new-profile.jpg"
+}
+
+### Update academic information
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "major": "Data Science",
+  "academicYear": 2025,
+  "department": "Data Science Department",
+  "faculty": "Engineering"
+}
+
+### Update social links
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "socialLinks": {
+    "linkedin": "https://linkedin.com/in/johndoe",
+    "github": "https://github.com/johndoe",
+    "twitter": "https://twitter.com/johndoe",
+    "website": "https://johndoe.dev"
+  }
+}
+
+## 4. Delete Profile
+
+### Delete user profile
+DELETE {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+
+## 5. Search Profiles
+
+### Search by query
+GET {{baseUrl}}/search?query=computer science
+Authorization: Bearer {{token}}
+
+### Search by university
+GET {{baseUrl}}/search?university=University of Technology
+Authorization: Bearer {{token}}
+
+### Search by major
+GET {{baseUrl}}/search?major=Computer Science
+Authorization: Bearer {{token}}
+
+### Search by academic year
+GET {{baseUrl}}/search?academicYear=2024
+Authorization: Bearer {{token}}
+
+### Search by department
+GET {{baseUrl}}/search?department=Computer Science Department
+Authorization: Bearer {{token}}
+
+### Search by faculty
+GET {{baseUrl}}/search?faculty=Engineering
+Authorization: Bearer {{token}}
+
+### Complex search with multiple filters
+GET {{baseUrl}}/search?query=computer science&university=University of Technology&major=Computer Science&academicYear=2024&page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Search with pagination
+GET {{baseUrl}}/search?query=technology&page=2&limit=10
+Authorization: Bearer {{token}}
+
+## 6. Profile Completion
+
+### Get profile completion score
+GET {{baseUrl}}/user-123/completion
+Authorization: Bearer {{token}}
+
+## 7. Privacy Settings
+
+### Update privacy settings
+PUT {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "university",
+  "showEmail": false,
+  "showPhone": false,
+  "showAcademicInfo": true,
+  "showSocialLinks": false
+}
+
+### Get privacy settings
+GET {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+
+### Set profile to public
+PUT {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "public",
+  "showEmail": true,
+  "showPhone": false,
+  "showAcademicInfo": true,
+  "showSocialLinks": true
+}
+
+### Set profile to private
+PUT {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "private",
+  "showEmail": false,
+  "showPhone": false,
+  "showAcademicInfo": false,
+  "showSocialLinks": false
+}
+
+## 8. Public Profiles
+
+### Get public profiles
+GET {{baseUrl}}/public
+Authorization: Bearer {{token}}
+
+### Get public profiles by university
+GET {{baseUrl}}/public?university=University of Technology
+Authorization: Bearer {{token}}
+
+### Get public profiles by major
+GET {{baseUrl}}/public?major=Computer Science
+Authorization: Bearer {{token}}
+
+### Get public profiles with pagination
+GET {{baseUrl}}/public?university=University of Technology&major=Computer Science&page=1&limit=20
+Authorization: Bearer {{token}}
+
+## 9. Profile Statistics
+
+### Get profile statistics
+GET {{baseUrl}}/user-123/statistics
+Authorization: Bearer {{token}}
+
+## 10. University Integration
+
+### Sync profile with university
+POST {{baseUrl}}/user-123/sync-university
+Authorization: Bearer {{token}}
+
+### Validate university email
+POST {{baseUrl}}/validate-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "john.doe@university.edu"
+}
+
+### Validate invalid university email
+POST {{baseUrl}}/validate-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "john.doe@invalid-university.com"
+}
+
+## 11. University Management
+
+### Get all universities
+GET {{baseUrl}}/universities
+Authorization: Bearer {{token}}
+
+### Search universities
+GET {{baseUrl}}/universities?search=technology
+Authorization: Bearer {{token}}
+
+### Get universities by country
+GET {{baseUrl}}/universities?country=United States
+Authorization: Bearer {{token}}
+
+### Get university statistics
+GET {{baseUrl}}/universities/university-123/statistics
+Authorization: Bearer {{token}}
+
+## 12. Error Handling Examples
+
+### Invalid profile data
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "Doe",
+  "username": "johndoe",
+  "universityEmail": "invalid-email"
+}
+
+### Unauthorized access
+GET {{baseUrl}}/user-456
+Authorization: Bearer {{token}}
+
+### Profile not found
+GET {{baseUrl}}/nonexistent-user
+Authorization: Bearer {{token}}
+
+### Username not found
+GET {{baseUrl}}/username/nonexistent
+Authorization: Bearer {{token}}
+
+### Invalid university email
+POST {{baseUrl}}/validate-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "john.doe@invalid-university.com"
+}
+
+### University not found
+GET {{baseUrl}}/universities/nonexistent/statistics
+Authorization: Bearer {{token}}
+
+## 13. Rate Limiting Examples
+
+### Check rate limit headers
+GET {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+
+# Response headers will include:
+# X-RateLimit-Limit: 100
+# X-RateLimit-Remaining: 95
+# X-RateLimit-Reset: 1640995200
+
+## 14. Pagination Examples
+
+### First page of search results
+GET {{baseUrl}}/search?query=computer science&page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Second page of search results
+GET {{baseUrl}}/search?query=computer science&page=2&limit=10
+Authorization: Bearer {{token}}
+
+### Last page of search results
+GET {{baseUrl}}/search?query=computer science&page=5&limit=10
+Authorization: Bearer {{token}}
+
+## 15. Complete Workflow Examples
+
+### Complete profile creation workflow
+# Step 1: Validate university email
+POST {{baseUrl}}/validate-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "john.doe@university.edu"
+}
+
+# Step 2: Create profile
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "username": "johndoe",
+  "universityEmail": "john.doe@university.edu",
+  "major": "Computer Science",
+  "academicYear": 2024
+}
+
+# Step 3: Sync with university
+POST {{baseUrl}}/user-123/sync-university
+Authorization: Bearer {{token}}
+
+# Step 4: Update profile with additional information
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": "Passionate about technology and innovation",
+  "profilePicture": "https://example.com/profile.jpg",
+  "socialLinks": {
+    "linkedin": "https://linkedin.com/in/johndoe",
+    "github": "https://github.com/johndoe"
+  }
+}
+
+# Step 5: Set privacy settings
+PUT {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "university",
+  "showEmail": false,
+  "showAcademicInfo": true
+}
+
+# Step 6: Check profile completion
+GET {{baseUrl}}/user-123/completion
+Authorization: Bearer {{token}}
+
+### Profile discovery workflow
+# Step 1: Search for profiles
+GET {{baseUrl}}/search?major=Computer Science&university=University of Technology
+Authorization: Bearer {{token}}
+
+# Step 2: Get specific profile
+GET {{baseUrl}}/username/johndoe
+Authorization: Bearer {{token}}
+
+# Step 3: Get public profiles
+GET {{baseUrl}}/public?university=University of Technology&page=1&limit=20
+Authorization: Bearer {{token}}
+
+## 16. Testing Examples
+
+### Test profile creation with various data
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "username": "testuser",
+  "universityEmail": "test.user@university.edu",
+  "major": "Test Major",
+  "academicYear": 2024,
+  "department": "Test Department",
+  "faculty": "Test Faculty",
+  "bio": "This is a test profile for API testing purposes.",
+  "profilePicture": "https://example.com/test-profile.jpg",
+  "socialLinks": {
+    "linkedin": "https://linkedin.com/in/testuser",
+    "github": "https://github.com/testuser"
+  },
+  "privacySettings": {
+    "profileVisibility": "public",
+    "showEmail": true,
+    "showPhone": false,
+    "showAcademicInfo": true,
+    "showSocialLinks": true
+  }
+}
+
+### Test profile update with partial data
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": "Updated bio for testing purposes"
+}
+
+### Test profile search with various filters
+GET {{baseUrl}}/search?query=test&university=University of Technology&major=Test Major&academicYear=2024&department=Test Department&faculty=Test Faculty&page=1&limit=5
+Authorization: Bearer {{token}}
+
+### Test university email validation
+POST {{baseUrl}}/validate-email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "test.user@university.edu"
+}
+
+### Test university sync
+POST {{baseUrl}}/user-123/sync-university
+Authorization: Bearer {{token}}
+
+### Test privacy settings update
+PUT {{baseUrl}}/user-123/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "private",
+  "showEmail": false,
+  "showPhone": false,
+  "showAcademicInfo": false,
+  "showSocialLinks": false
+}
+
+### Test profile completion score
+GET {{baseUrl}}/user-123/completion
+Authorization: Bearer {{token}}
+
+### Test profile statistics
+GET {{baseUrl}}/user-123/statistics
+Authorization: Bearer {{token}}
+
+### Test university statistics
+GET {{baseUrl}}/universities/university-123/statistics
+Authorization: Bearer {{token}}
+
+## 17. Performance Testing Examples
+
+### Test search performance with large result set
+GET {{baseUrl}}/search?query=computer&page=1&limit=50
+Authorization: Bearer {{token}}
+
+### Test pagination performance
+GET {{baseUrl}}/search?query=technology&page=10&limit=20
+Authorization: Bearer {{token}}
+
+### Test public profiles performance
+GET {{baseUrl}}/public?university=University of Technology&page=1&limit=50
+Authorization: Bearer {{token}}
+
+## 18. Security Testing Examples
+
+### Test with invalid token
+GET {{baseUrl}}/user-123
+Authorization: Bearer invalid_token
+
+### Test with expired token
+GET {{baseUrl}}/user-123
+Authorization: Bearer expired_token
+
+### Test with missing token
+GET {{baseUrl}}/user-123
+
+### Test unauthorized access to another user's profile
+GET {{baseUrl}}/user-456
+Authorization: Bearer {{token}}
+
+### Test unauthorized profile update
+PUT {{baseUrl}}/user-456
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Hacked"
+}
+
+### Test unauthorized profile deletion
+DELETE {{baseUrl}}/user-456
+Authorization: Bearer {{token}}
+
+### Test unauthorized privacy settings update
+PUT {{baseUrl}}/user-456/privacy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profileVisibility": "public"
+}
+
+## 19. Edge Case Examples
+
+### Test with very long bio
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": "This is a very long bio that exceeds the normal length limit to test the API's handling of edge cases and validation. It contains multiple sentences and should be properly validated by the API to ensure it doesn't cause any issues with the database or application performance."
+}
+
+### Test with special characters in username
+POST {{baseUrl}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "username": "test_user-123",
+  "universityEmail": "test.user@university.edu"
+}
+
+### Test with unicode characters
+PUT {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "José",
+  "lastName": "García",
+  "bio": "Hola! I'm José García, studying Computer Science. I love technology and innovation. ¡Vamos a programar!"
+}
+
+### Test with empty search query
+GET {{baseUrl}}/search?query=
+Authorization: Bearer {{token}}
+
+### Test with very large page number
+GET {{baseUrl}}/search?query=computer&page=999999&limit=10
+Authorization: Bearer {{token}}
+
+### Test with very large limit
+GET {{baseUrl}}/search?query=computer&page=1&limit=1000
+Authorization: Bearer {{token}}
+
+## 20. Integration Examples
+
+### Test with different user roles
+# Admin user accessing any profile
+GET {{baseUrl}}/user-123
+Authorization: Bearer admin_token
+
+# Regular user accessing their own profile
+GET {{baseUrl}}/user-123
+Authorization: Bearer user_token
+
+# Regular user accessing another user's profile
+GET {{baseUrl}}/user-456
+Authorization: Bearer user_token
+
+### Test with different privacy settings
+# Public profile access
+GET {{baseUrl}}/user-123
+Authorization: Bearer {{token}}
+
+# University-only profile access
+GET {{baseUrl}}/user-456
+Authorization: Bearer {{token}}
+
+# Private profile access
+GET {{baseUrl}}/user-789
+Authorization: Bearer {{token}}
+
+### Test with different university statuses
+# Active university
+GET {{baseUrl}}/universities/active-university/statistics
+Authorization: Bearer {{token}}
+
+# Inactive university
+GET {{baseUrl}}/universities/inactive-university/statistics
+Authorization: Bearer {{token}}
+
+# Suspended university
+GET {{baseUrl}}/universities/suspended-university/statistics
+Authorization: Bearer {{token}}
